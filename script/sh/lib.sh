@@ -113,6 +113,22 @@ _dsh_shell_lib_join_cmd() {
   printf "%s" "${__dsh_shell_lib_join_cmd}"
 }
 
+_dsh_shell_lib_disable_errexit() {
+  case "$-" in
+    *e*)
+      set +o errexit
+      _DSH_SHELL_LIB_ERREXIT_DISABLED="true"
+      ;;
+  esac
+}
+
+_dsh_shell_lib_reset_errexit() {
+  if [ "${_DSH_SHELL_LIB_ERREXIT_DISABLED}" = "true" ]; then
+    set -o errexit
+    unset _DSH_SHELL_LIB_ERREXIT_DISABLED
+  fi
+}
+
 dsh_set_log_level() {
   case "$1" in
     "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL")
@@ -178,6 +194,12 @@ dsh_log_task_finish() {
   fi
 }
 
+dsh_log_value() {
+  __dsh_log_value_name="$1"
+  __dsh_log_value="$2"
+  _dsh_shell_lib_log "VALUE" "${__dsh_log_value_name} = \`${__dsh_log_value}\`"
+}
+
 dsh_log_values() {
   __dsh_log_value_name=""
   for __dsh_log_value_name in "$@"; do
@@ -191,18 +213,31 @@ dsh_log_cmd() {
   _dsh_shell_lib_log "CMD" "$1"
 }
 
+dsh_log_check_value() {
+  dsh_log_value "$1" "$2"
+  dsh_check_value "$1" "$2"
+}
+
 dsh_log_check_values() {
   dsh_log_values "$@"
   dsh_check_values "$@"
 }
 
+dsh_check_value() {
+  __dsh_check_value_name="$1"
+  __dsh_check_value="$2"
+  if [ -z "${__dsh_check_value}" ]; then
+    dsh_log_fatal "${__dsh_check_value_name} value empty"
+  fi
+}
+
 dsh_check_values() {
-  __dsh_check_empty_value_name=""
-  for __dsh_check_empty_value_name in "$@"; do
-    __dsh_check_empty_value=""
-    eval "__dsh_check_empty_value=\"\${${__dsh_check_empty_value_name}}\""
-    if [ -z "${__dsh_check_empty_value}" ]; then
-      dsh_log_fatal "${__dsh_check_empty_value_name} value empty"
+  __dsh_check_value_name=""
+  for __dsh_check_value_name in "$@"; do
+    __dsh_check_value=""
+    eval "__dsh_check_value=\"\${${__dsh_check_value_name}}\""
+    if [ -z "${__dsh_check_value}" ]; then
+      dsh_log_fatal "${__dsh_check_value_name} value empty"
     fi
   done
 }
@@ -217,8 +252,84 @@ dsh_exec_task() {
 }
 
 dsh_exec_cmd() {
-  __dsh_exec_cmd=$(_dsh_shell_lib_join_cmd "$@")
+  __dsh_exec_cmd="$(_dsh_shell_lib_join_cmd "$@")"
   dsh_log_cmd "${__dsh_exec_cmd}"
   eval "${__dsh_exec_cmd}"
   return $?
+}
+
+dsh_try_source() {
+  __dsh_try_source_file="$1"
+  if [ -f "${__dsh_try_source_file}" ]; then
+    # shellcheck source=/dev/null
+    . "${__dsh_try_source_file}"
+    DSH_TRY_SOURCE_SUCCESS="true"
+  else
+    # shellcheck disable=SC2034
+    DSH_TRY_SOURCE_SUCCESS="false"
+  fi
+}
+
+dsh_curl_download() {
+  __dsh_curl_download_url="$1"
+  __dsh_curl_download_output="$2"
+  dsh_log_check_value "curl_download_url" "${__dsh_curl_download_url}"
+  dsh_log_check_value "curl_download_output" "${__dsh_curl_download_output}"
+  __dsh_curl_download_output_dir="$(dirname "${__dsh_curl_download_output}")"
+  if [ ! -d "${__dsh_curl_download_output_dir}" ]; then
+    dsh_exec_cmd mkdir -p "${__dsh_curl_download_output_dir}"
+  fi
+  shift 2
+  __dsh_curl_download_option="$(_dsh_shell_lib_join_cmd "$@")"
+  if [ -n "${__dsh_curl_download_option}" ]; then
+    __dsh_curl_download_option="${__dsh_curl_download_option} "
+  fi
+  __dsh_curl_download_command="curl -sL -w \"%{http_code}\" -o \"${__dsh_curl_download_output}\" ${__dsh_curl_download_option}${__dsh_curl_download_url}"
+  dsh_log_cmd "${__dsh_curl_download_command}"
+  _dsh_shell_lib_disable_errexit
+  __dsh_curl_download_http_code="$(eval "${__dsh_curl_download_command}")"
+  __dsh_curl_download_exit_code=$?
+  _dsh_shell_lib_reset_errexit
+  dsh_log_check_value "curl_download_http_code" "${__dsh_curl_download_http_code}"
+  dsh_log_check_value "curl_download_exit_code" "${__dsh_curl_download_exit_code}"
+  if [ "${__dsh_curl_download_exit_code}" -ne "0" ]; then
+    dsh_log_error "curl download exit code error"
+    return 1
+  fi
+  if [ "${__dsh_curl_download_http_code}" -lt "200" ] || [ "${__dsh_curl_download_http_code}" -ge "300" ]; then
+    dsh_log_error "curl download http code error"
+    return 1
+  fi
+}
+
+dsh_curl_upload() {
+  __dsh_curl_upload_url="$1"
+  __dsh_curl_upload_input="$2"
+  dsh_log_check_value "curl_upload_url" "${__dsh_curl_upload_url}"
+  dsh_log_check_value "curl_upload_input" "${__dsh_curl_upload_input}"
+  if [ ! -f "${__dsh_curl_upload_input}" ]; then
+    dsh_log_error "curl upload input file not exists"
+    return 1
+  fi
+  shift 2
+  __dsh_curl_upload_option="$(_dsh_shell_lib_join_cmd "$@")"
+  if [ -n "${__dsh_curl_upload_option}" ]; then
+    __dsh_curl_upload_option="${__dsh_curl_upload_option} "
+  fi
+  __dsh_curl_upload_command="curl -sL -w \"%{http_code}\" -o /dev/null ${__dsh_curl_upload_option}-T \"${__dsh_curl_upload_input}\" ${__dsh_curl_upload_url}"
+  dsh_log_cmd "${__dsh_curl_upload_command}"
+  _dsh_shell_lib_disable_errexit
+  __dsh_curl_upload_http_code="$(eval "${__dsh_curl_upload_command}")"
+  __dsh_curl_upload_exit_code=$?
+  _dsh_shell_lib_reset_errexit
+  dsh_log_check_value "curl_upload_http_code" "${__dsh_curl_upload_http_code}"
+  dsh_log_check_value "curl_upload_exit_code" "${__dsh_curl_upload_exit_code}"
+  if [ "${__dsh_curl_download_exit_code}" -ne "0" ]; then
+    dsh_log_error "curl upload exit code error"
+    return 1
+  fi
+  if [ "${__dsh_curl_upload_http_code}" -lt "200" ] || [ "${__dsh_curl_upload_http_code}" -ge "300" ]; then
+    dsh_log_error "curl upload http code error"
+    return 1
+  fi
 }
