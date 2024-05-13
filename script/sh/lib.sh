@@ -12,6 +12,30 @@ if [ -z "${_DSH_SHELL_LIB_LOG_SENSITIVES}" ]; then
   export _DSH_SHELL_LIB_LOG_SENSITIVES=""
 fi
 
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_GRAY}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_GRAY="$(printf "\033[90m")"
+fi
+
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_BLUE}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_BLUE="$(printf "\033[94m")"
+fi
+
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_YELLOW}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_YELLOW="$(printf "\033[93m")"
+fi
+
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_RED}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_RED="$(printf "\033[91m")"
+fi
+
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_PURPLE}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_PURPLE="$(printf "\033[95m")"
+fi
+
+if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_CLEAR}" ]; then
+  export _DSH_SHELL_LIB_LOG_COLOR_CLEAR="$(printf "\033[0m")"
+fi
+
 _dsh_shell_lib_log_level_num() {
   case "$1" in
     "DEBUG")
@@ -49,31 +73,31 @@ _dsh_shell_lib_log() {
   __dsh_shell_lib_log_color=""
   case "${__dsh_shell_lib_log_level}" in
     "DEBUG")
-      __dsh_shell_lib_log_color="$(printf "\033[90m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_GRAY}"
       ;;
     "INFO")
-      __dsh_shell_lib_log_color="$(printf "\033[94m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_BLUE}"
       ;;
     "WARN")
-      __dsh_shell_lib_log_color="$(printf "\033[93m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_YELLOW}"
       ;;
     "ERROR")
-      __dsh_shell_lib_log_color="$(printf "\033[91m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_RED}"
       ;;
     "FATAL")
-      __dsh_shell_lib_log_color="$(printf "\033[91m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_RED}"
       ;;
     "TASK")
-      __dsh_shell_lib_log_color="$(printf "\033[95m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_PURPLE}"
       ;;
     "CMD")
-      __dsh_shell_lib_log_color="$(printf "\033[90m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_GRAY}"
       ;;
     "VALUE")
-      __dsh_shell_lib_log_color="$(printf "\033[94m")"
+      __dsh_shell_lib_log_color="${_DSH_SHELL_LIB_LOG_COLOR_BLUE}"
       ;;
   esac
-  __dsh_shell_lib_log_color_clear="$(printf "\033[0m")"
+  __dsh_shell_lib_log_color_clear="${_DSH_SHELL_LIB_LOG_COLOR_CLEAR}"
 
   for __dsh_shell_lib_log_sensitive in ${_DSH_SHELL_LIB_LOG_SENSITIVES}; do
     __dsh_shell_lib_log_sensitive="$(LC_ALL=C awk -v str="${__dsh_shell_lib_log_sensitive}" 'BEGIN {gsub(/<\{\[dsh_escape_space]}>/, " ", str); gsub(/<\{\[dsh_escape_tab]}>/, "\t", str); gsub(/<\{\[dsh_escape_newline]}>/, "\n", str); gsub(/<\{\[dsh_escape_return]}>/, "\r", str); print str;}')"
