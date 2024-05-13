@@ -131,6 +131,8 @@ _dsh_shell_lib_join_cmd() {
   __dsh_shell_lib_join_cmd=""
   for __dsh_shell_lib_join_cmd_part in "$@"; do
     case "${__dsh_shell_lib_join_cmd_part}" in
+      -*)
+        ;;
       *" "* | *"\t"* | *"\n"* | *"\r"*)
         __dsh_shell_lib_join_cmd_part="\"${__dsh_shell_lib_join_cmd_part}\""
         ;;
