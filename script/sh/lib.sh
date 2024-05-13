@@ -49,28 +49,28 @@ _dsh_shell_lib_log() {
   __dsh_shell_lib_log_color=""
   case "${__dsh_shell_lib_log_level}" in
     "DEBUG")
-      __dsh_shell_lib_log_color="\e[90m"
+      __dsh_shell_lib_log_color="\033[90m"
       ;;
     "INFO")
-      __dsh_shell_lib_log_color="\e[94m"
+      __dsh_shell_lib_log_color="\033[94m"
       ;;
     "WARN")
-      __dsh_shell_lib_log_color="\e[93m"
+      __dsh_shell_lib_log_color="\033[93m"
       ;;
     "ERROR")
-      __dsh_shell_lib_log_color="\e[91m"
+      __dsh_shell_lib_log_color="\033[91m"
       ;;
     "FATAL")
-      __dsh_shell_lib_log_color="\e[91m"
+      __dsh_shell_lib_log_color="\033[91m"
       ;;
     "TASK")
-      __dsh_shell_lib_log_color="\e[95m"
+      __dsh_shell_lib_log_color="\033[95m"
       ;;
     "CMD")
-      __dsh_shell_lib_log_color="\e[90m"
+      __dsh_shell_lib_log_color="\033[90m"
       ;;
     "VALUE")
-      __dsh_shell_lib_log_color="\e[94m"
+      __dsh_shell_lib_log_color="\033[94m"
       ;;
   esac
 
@@ -90,7 +90,7 @@ _dsh_shell_lib_log() {
   fi
 
   if [ "${DSH_SHELL_LIB_LOG_WITH_COLOR}" != "false" ]; then
-    printf "${__dsh_shell_lib_log_color}[%s] [%-5s]%s %s\e[m\n" "${__dsh_shell_lib_log_time}" "${__dsh_shell_lib_log_level}" "${__dsh_shell_lib_log_indent}" "${__dsh_shell_lib_log_text}"
+    printf "${__dsh_shell_lib_log_color}[%s] [%-5s]%s %s\033[0m\n" "${__dsh_shell_lib_log_time}" "${__dsh_shell_lib_log_level}" "${__dsh_shell_lib_log_indent}" "${__dsh_shell_lib_log_text}"
   else
     printf "[%s] [%-5s]%s %s\n" "${__dsh_shell_lib_log_time}" "${__dsh_shell_lib_log_level}" "${__dsh_shell_lib_log_indent}" "${__dsh_shell_lib_log_text}"
   fi
