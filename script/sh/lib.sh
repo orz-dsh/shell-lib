@@ -13,27 +13,33 @@ if [ -z "${_DSH_SHELL_LIB_LOG_SENSITIVES}" ]; then
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_GRAY}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_GRAY="$(printf "\033[90m")"
+  _DSH_SHELL_LIB_LOG_COLOR_GRAY="$(printf "\033[90m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_GRAY
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_BLUE}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_BLUE="$(printf "\033[94m")"
+  _DSH_SHELL_LIB_LOG_COLOR_BLUE="$(printf "\033[94m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_BLUE
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_YELLOW}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_YELLOW="$(printf "\033[93m")"
+  _DSH_SHELL_LIB_LOG_COLOR_YELLOW="$(printf "\033[93m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_YELLOW
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_RED}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_RED="$(printf "\033[91m")"
+  _DSH_SHELL_LIB_LOG_COLOR_RED="$(printf "\033[91m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_RED
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_PURPLE}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_PURPLE="$(printf "\033[95m")"
+  _DSH_SHELL_LIB_LOG_COLOR_PURPLE="$(printf "\033[95m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_PURPLE
 fi
 
 if [ -z "${_DSH_SHELL_LIB_LOG_COLOR_CLEAR}" ]; then
-  export _DSH_SHELL_LIB_LOG_COLOR_CLEAR="$(printf "\033[0m")"
+  _DSH_SHELL_LIB_LOG_COLOR_CLEAR="$(printf "\033[0m")"
+  export _DSH_SHELL_LIB_LOG_COLOR_CLEAR
 fi
 
 _dsh_shell_lib_log_level_num() {
