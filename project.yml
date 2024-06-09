@@ -2,4 +2,4 @@ name: dsh_shell_lib
 script:
   sources:
     - dir: script/sh
-      match: _shell == 'sh'
+      match: _executor == 'sh'
