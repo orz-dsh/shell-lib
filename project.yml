@@ -1,4 +1,4 @@
-name: dsh_shell_lib
+name: dsh-shell-lib
 script:
   sources:
     - dir: script/sh
