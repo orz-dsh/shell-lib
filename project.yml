@@ -1,5 +1,5 @@
 name: dsh-shell-lib
-script:
-  sources:
+resource:
+  items:
     - dir: script/sh
       match: _executor == 'sh'
